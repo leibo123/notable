@@ -1,0 +1,42 @@
+﻿Shader "Custom/Spotlight"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _CenterX ("Center X", Range(0.0, 0.5)) = 0.25
+        _CenterY ("Center Y", Range(-0.3, 0.1)) = -0.25
+        _Radius ("Radius", Range(0.01, 0.5)) = 0.1
+        _Sharpness ("Sharpness", Range(1, 20)) = 1
+    }
+    SubShader
+    {
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert_img
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+           
+            sampler2D _MainTex;
+            float _CenterX, _CenterY;
+            float _Radius;
+            float _Sharpness;
+ 
+            fixed4 frag (v2f_img i) : SV_Target
+            {
+                float dist = distance(float2(_CenterX, _CenterY), ComputeScreenPos(i.pos).xy / _ScreenParams.x);
+                fixed4 col = tex2D(_MainTex, i.uv);
+				if(dist / _Radius > .85)
+				{
+					return col * .30;
+				}
+				else
+				{
+					return col * (1 - pow(dist / _Radius, _Sharpness));
+				}
+            }
+ 
+            ENDCG
+        }
+    }
+}
